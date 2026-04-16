@@ -8,12 +8,27 @@ namespace Lab5.Tests
     [TestClass]
     public class Test1
     {
-        private const string Lab5Path = @"E:\Spring 2025\CSCI 2910\Lab5\Lab5";
+        private static LibraryService CreateService()
+        {
+            var books = new List<Book>
+            {
+                new Book { Id = 1, Title = "Book 1", Author = "Author 1", ISBN = "111" },
+                new Book { Id = 2, Title = "Book 2", Author = "Author 2", ISBN = "222" }
+            };
+
+            var users = new List<User>
+            {
+                new User { Id = 1, Name = "User 1", Email = "user1@test.com" },
+                new User { Id = 2, Name = "User 2", Email = "user2@test.com" }
+            };
+
+            return new LibraryService(books, users);
+        }
 
         [TestMethod]
         public void AddBook_Should_Add_Book()
         {
-            var service = new LibraryService(Lab5Path);
+            var service = CreateService();
             var count = service.GetBooks().Count;
 
             service.AddBook(new Book
@@ -29,7 +44,7 @@ namespace Lab5.Tests
         [TestMethod]
         public void AddUser_Should_Add_User()
         {
-            var service = new LibraryService(Lab5Path);
+            var service = CreateService();
             var count = service.GetUsers().Count;
 
             service.AddUser(new User
@@ -44,7 +59,7 @@ namespace Lab5.Tests
         [TestMethod]
         public void DeleteBook_Should_Remove_Book()
         {
-            var service = new LibraryService(Lab5Path);
+            var service = CreateService();
             var book = service.GetBooks().First();
 
             service.DeleteBook(book.Id);
@@ -55,7 +70,7 @@ namespace Lab5.Tests
         [TestMethod]
         public void DeleteUser_Should_Remove_User()
         {
-            var service = new LibraryService(Lab5Path);
+            var service = CreateService();
             var user = service.GetUsers().First();
 
             service.DeleteUser(user.Id);
@@ -66,7 +81,7 @@ namespace Lab5.Tests
         [TestMethod]
         public void EditBook_Should_Update_Book()
         {
-            var service = new LibraryService(Lab5Path);
+            var service = CreateService();
             var book = service.GetBooks().First();
 
             book.Title = "Updated Title";
@@ -78,7 +93,7 @@ namespace Lab5.Tests
         [TestMethod]
         public void EditUser_Should_Update_User()
         {
-            var service = new LibraryService(Lab5Path);
+            var service = CreateService();
             var user = service.GetUsers().First();
 
             user.Name = "Updated User";
@@ -90,7 +105,7 @@ namespace Lab5.Tests
         [TestMethod]
         public void BorrowBook_Should_Return_True()
         {
-            var service = new LibraryService(Lab5Path);
+            var service = CreateService();
             var book = service.GetBooks().First();
             var user = service.GetUsers().First();
 
@@ -102,7 +117,7 @@ namespace Lab5.Tests
         [TestMethod]
         public void ReturnBook_Should_Return_True()
         {
-            var service = new LibraryService(Lab5Path);
+            var service = CreateService();
             var book = service.GetBooks().First();
             var user = service.GetUsers().First();
 
@@ -115,7 +130,7 @@ namespace Lab5.Tests
         [TestMethod]
         public void BorrowBook_Should_Return_False_For_Invalid_Book()
         {
-            var service = new LibraryService(Lab5Path);
+            var service = CreateService();
             var user = service.GetUsers().First();
 
             var result = service.BorrowBook(-1, user.Id);
@@ -126,7 +141,7 @@ namespace Lab5.Tests
         [TestMethod]
         public void ReturnBook_Should_Return_False_When_Not_Borrowed()
         {
-            var service = new LibraryService(Lab5Path);
+            var service = CreateService();
             var user = service.GetUsers().First();
             var book = service.GetBooks().First();
 

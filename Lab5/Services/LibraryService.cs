@@ -16,6 +16,11 @@ namespace Lab5.Services
             this.env = env;
             LoadData(Path.Combine(env.ContentRootPath, "Data"));
         }
+        public LibraryService(List<Book> testBooks, List<User> testUsers)
+        {
+            books = testBooks;
+            users = testUsers;
+        }
 
         public LibraryService(string basePath)
         {
