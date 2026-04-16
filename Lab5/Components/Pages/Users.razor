@@ -1,0 +1,100 @@
+﻿@page "/users"
+@rendermode InteractiveServer
+@using Lab5.Models
+@using Lab5.Services
+@inject ILibraryService LibraryService
+
+<h3>User Management</h3>
+
+<h5>Add User</h5>
+
+<input placeholder="Name" @bind="newUser.Name" />
+<input placeholder="Email" @bind="newUser.Email" />
+
+<button @onclick="AddUser">Add</button>
+
+<hr />
+
+<h5>Users</h5>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var user in users)
+        {
+            <tr>
+                <td>@user.Id</td>
+                <td>@user.Name</td>
+                <td>@user.Email</td>
+
+                <td>
+                    <button @onclick="() => DeleteUser(user.Id)">Delete</button>
+                    <button @onclick="() => StartEdit(user)">Edit</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (editingUser != null)
+{
+    <h5>Edit User</h5>
+
+    <input @bind="editingUser.Name" />
+    <input @bind="editingUser.Email" />
+
+    <button @onclick="SaveEdit">Save</button>
+}
+
+@code {
+
+    List<User> users = new();
+    User newUser = new();
+    User? editingUser;
+
+    protected override void OnInitialized()
+    {
+        users = LibraryService.GetUsers();
+    }
+
+    void AddUser()
+    {
+        LibraryService.AddUser(newUser);
+        newUser = new User();
+        users = LibraryService.GetUsers();
+    }
+
+    void DeleteUser(int id)
+    {
+        LibraryService.DeleteUser(id);
+        users = LibraryService.GetUsers();
+    }
+
+    void StartEdit(User user)
+    {
+        editingUser = new User
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email
+        };
+    }
+
+    void SaveEdit()
+    {
+        if (editingUser == null) return;
+
+        LibraryService.EditUser(editingUser);
+        editingUser = null;
+
+        users = LibraryService.GetUsers();
+    }
+}

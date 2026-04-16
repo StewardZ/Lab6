@@ -1,0 +1,121 @@
+﻿@page "/borrowreturn"
+@rendermode InteractiveServer
+@using Lab5.Models
+@using Lab5.Services
+@inject ILibraryService LibraryService
+
+<h3>Borrow / Return Books</h3>
+
+<h5>Borrow Book</h5>
+
+<select @bind="selectedBookId">
+    <option value="0">Select a book</option>
+    @foreach (var book in books)
+    {
+        <option value="@book.Id">@book.Title by @book.Author</option>
+    }
+</select>
+
+<select @bind="selectedUserId">
+    <option value="0">Select a user</option>
+    @foreach (var user in users)
+    {
+        <option value="@user.Id">@user.Name</option>
+    }
+</select>
+
+<button @onclick="BorrowBook">Borrow</button>
+
+<hr />
+
+<h5>Return Book</h5>
+
+<select value="@returnUserId" @onchange="OnUserChanged">
+    <option value="0">Select a user</option>
+    @foreach (var user in users)
+    {
+        <option value="@user.Id">@user.Name</option>
+    }
+</select>
+
+<select @bind="returnBookId">
+    <option value="0">Select a borrowed book</option>
+    @foreach (var book in borrowedUserBooks)
+    {
+        <option value="@book.Id">@book.Title by @book.Author</option>
+    }
+</select>
+
+<button @onclick="ReturnBook">Return</button>
+
+<hr />
+
+<h5>Borrowed Books List</h5>
+
+@foreach (var record in borrowedRecords)
+{
+    <p><strong>@record.UserName</strong></p>
+    <ul>
+        @foreach (var book in record.Books)
+        {
+            <li>@book.Title by @book.Author (@book.ISBN)</li>
+        }
+    </ul>
+}
+
+@code {
+    List<Book> books = new();
+    List<User> users = new();
+    List<Book> borrowedUserBooks = new();
+    List<BorrowedBookRecord> borrowedRecords = new();
+
+    int selectedBookId;
+    int selectedUserId;
+
+    int returnUserId;
+    int returnBookId;
+
+    protected override void OnInitialized()
+    {
+        RefreshData();
+    }
+
+    void RefreshData()
+    {
+        books = LibraryService.GetBooks();
+        users = LibraryService.GetUsers();
+        borrowedRecords = LibraryService.GetBorrowedBooks();
+    }
+
+    void BorrowBook()
+    {
+        if (selectedBookId == 0 || selectedUserId == 0)
+            return;
+
+        LibraryService.BorrowBook(selectedBookId, selectedUserId);
+
+        selectedBookId = 0;
+        selectedUserId = 0;
+
+        RefreshData();
+    }
+
+    void OnUserChanged(ChangeEventArgs e)
+    {
+        returnUserId = int.Parse(e.Value?.ToString() ?? "0");
+        borrowedUserBooks = LibraryService.GetBorrowedBooksByUser(returnUserId);
+    }
+
+    void ReturnBook()
+    {
+        if (returnUserId == 0 || returnBookId == 0)
+            return;
+
+        LibraryService.ReturnBook(returnUserId, returnBookId);
+
+        returnBookId = 0;
+        borrowedUserBooks = LibraryService.GetBorrowedBooksByUser(returnUserId);
+
+        RefreshData();
+    }
+}
