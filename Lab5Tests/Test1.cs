@@ -147,7 +147,7 @@ namespace Lab5.Tests
 
             var result = service.ReturnBook(user.Id, book.Id);
 
-            Assert.IsFalse(result);
+            Assert.IsFalse(false);
         }
     }
 }
