@@ -1,69 +1,39 @@
 name: build and test
 
- 
-
 on:
-
   push:
-
   pull_request:
-
     branches: [ main ]
-
     paths:
-
-    - '**.cs'
-
-    - '**.csproj'
-
- 
+      - '**.cs'
+      - '**.csproj'
+      - '**.sln'
+      - '.github/workflows/**'
 
 jobs:
-
   build-and-test:
-
- 
-
-    name: build-and-test-${{matrix.os}}
-
+    name: build-and-test-${{ matrix.os }}-${{ matrix.dotnet }}
     runs-on: ${{ matrix.os }}
 
     strategy:
-
+      fail-fast: false
       matrix:
-
-        os: [ubuntu-latest, windows-latest, macos-latest, windows-2022]        
-
-        dotnet: ['8.0.x', '10.0.x']
-
- 
+        os: [ubuntu-latest, windows-latest, macos-latest, windows-2022]
+        dotnet: ['9.0.x']
 
     steps:
+      - uses: actions/checkout@v4
 
-    - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ matrix.dotnet }}
 
-    - name: Setup .NET Core
+      - name: Restore
+        run: dotnet restore ./Lab5/Lab5.sln
 
-      uses: actions/setup-dotnet@v5
+      - name: Build
+        run: dotnet build ./Lab5/Lab5.sln --configuration Release --no-restore
 
-      with:
-
-        dotnet-version: ${{ matrix.dotnet }}
-
- 
-
-    - name: Install dependencies
-
-      run: dotnet restore
-
-     
-
-    - name: Build
-
-      run: dotnet build --configuration Release --no-restore
-
-   
-
-    - name: Test
-
-      run: dotnet test --no-restore --verbosity normal
+      - name: Test
+        run: dotnet test ./Lab5/Lab5.sln --configuration Release --no-build --verbosity normal
